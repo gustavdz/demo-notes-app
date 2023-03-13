@@ -9,6 +9,9 @@ export function ApiStack({ stack, app }: any) {
 		defaults: {
 			function: {
 				bind: [table],
+				environment: {
+					STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
+				},
 			},
 			authorizer: "iam",
 		},
@@ -18,6 +21,7 @@ export function ApiStack({ stack, app }: any) {
 			"GET /notes": "packages/functions/src/list.main",
 			"PUT /notes/{id}": "packages/functions/src/update.main",
 			"DELETE /notes/{id}": "packages/functions/src/delete.main",
+			"POST /billing": "packages/functions/src/billing.main",
 		},
 	});
 
