@@ -1,5 +1,5 @@
-import Stripe from "stripe";
 import handler from "@notes/core/handler";
+import Stripe from "stripe";
 import { calculateCost } from "@notes/core/cost";
 import { APIGatewayProxyEventV2WithIAMAuthorizer } from "aws-lambda";
 

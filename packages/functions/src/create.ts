@@ -1,6 +1,6 @@
+import handler from "@notes/core/handler";
 import { Table } from "sst/node/table";
 import * as uuid from "uuid";
-import handler from "@notes/core/handler";
 import dynamoDb from "@notes/core/dynamodb";
 import { APIGatewayProxyEventV2WithIAMAuthorizer } from "aws-lambda";
 import AWS from "aws-sdk";

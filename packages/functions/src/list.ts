@@ -1,5 +1,5 @@
-import { Table } from "sst/node/table";
 import handler from "@notes/core/handler";
+import { Table } from "sst/node/table";
 import dynamoDb from "@notes/core/dynamodb";
 import { APIGatewayProxyEventV2WithIAMAuthorizer } from "aws-lambda";
 

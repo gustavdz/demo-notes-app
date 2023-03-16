@@ -1,15 +1,21 @@
 import { Context, APIGatewayProxyEventV2WithIAMAuthorizer } from "aws-lambda";
+import * as debug from "./debug";
 
-export default (lambda: any) => {
+export default function handler(lambda: any) {
 	return async function (event: APIGatewayProxyEventV2WithIAMAuthorizer, context: Context): Promise<any> {
 		let body, statusCode;
+
+		// Start debugger
+		debug.init(event);
 
 		try {
 			// Run the Lambda
 			body = await lambda(event, context);
 			statusCode = 200;
 		} catch (e: any) {
-			console.error(e);
+			// Print debug messages
+			debug.flush(e);
+
 			body = { error: e.message };
 			statusCode = 500;
 		}
@@ -24,4 +30,4 @@ export default (lambda: any) => {
 			},
 		};
 	};
-};
+}
