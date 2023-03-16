@@ -1,5 +1,7 @@
-export default function handler(lambda: any) {
-	return async function (event: any, context: any) {
+import { Context, APIGatewayProxyEventV2WithIAMAuthorizer } from "aws-lambda";
+
+export default (lambda: any) => {
+	return async function (event: APIGatewayProxyEventV2WithIAMAuthorizer, context: Context): Promise<any> {
 		let body, statusCode;
 
 		try {
@@ -22,4 +24,4 @@ export default function handler(lambda: any) {
 			},
 		};
 	};
-}
+};

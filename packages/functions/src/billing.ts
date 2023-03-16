@@ -1,9 +1,10 @@
 import Stripe from "stripe";
 import handler from "@notes/core/handler";
 import { calculateCost } from "@notes/core/cost";
+import { APIGatewayProxyEventV2WithIAMAuthorizer } from "aws-lambda";
 
-export const main = handler(async (event: any) => {
-	const { storage, source } = JSON.parse(event.body);
+export const main = handler(async (event: APIGatewayProxyEventV2WithIAMAuthorizer) => {
+	const { storage, source } = JSON.parse(event.body || "");
 	const amount = calculateCost(storage);
 	const description = "Scratch charge";
 

@@ -1,8 +1,12 @@
-import { Bucket, Table } from "sst/constructs";
+import { Bucket, StackContext, Table } from "sst/constructs";
 
-export function StorageStack({ stack, app }: any) {
+interface IStorageStack {
+	table: Table;
+	bucket: Bucket;
+}
+export const StorageStack = ({ stack }: StackContext): IStorageStack => {
 	// Create an S3 bucket
-	const bucket = new Bucket(stack, "Uploads", {
+	const bucket: Bucket = new Bucket(stack, "Uploads", {
 		cors: [
 			{
 				maxAge: "1 day",
@@ -13,7 +17,7 @@ export function StorageStack({ stack, app }: any) {
 		],
 	});
 	// Create the DynamoDB table
-	const table = new Table(stack, "Notes", {
+	const table: Table = new Table(stack, "Notes", {
 		fields: {
 			userId: "string",
 			noteId: "string",
@@ -25,4 +29,4 @@ export function StorageStack({ stack, app }: any) {
 		table,
 		bucket,
 	};
-}
+};

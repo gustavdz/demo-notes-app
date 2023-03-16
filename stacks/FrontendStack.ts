@@ -1,15 +1,15 @@
-import { StaticSite, use } from "sst/constructs";
+import { StackContext, StaticSite, use } from "sst/constructs";
 import { ApiStack } from "./ApiStack";
 import { AuthStack } from "./AuthStack";
 import { StorageStack } from "./StorageStack";
 
-export function FrontendStack({ stack, app }: any) {
+export const FrontendStack = ({ stack, app }: StackContext): void => {
 	const { api } = use(ApiStack);
 	const { auth } = use(AuthStack);
 	const { bucket } = use(StorageStack);
 
 	// Define our React app
-	const site = new StaticSite(stack, "ReactSite", {
+	const site: StaticSite = new StaticSite(stack, "ReactSite", {
 		path: "frontend",
 		buildOutput: "build",
 		buildCommand: "npm run build",
@@ -28,4 +28,4 @@ export function FrontendStack({ stack, app }: any) {
 	stack.addOutputs({
 		SiteUrl: site.url || "http://localhost:3000",
 	});
-}
+};

@@ -1,11 +1,14 @@
-import { Api, use } from "sst/constructs";
+import { Api, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 
-export function ApiStack({ stack, app }: any) {
+interface IApiStack {
+	api: Api;
+}
+export const ApiStack = ({ stack }: StackContext): IApiStack => {
 	const { table } = use(StorageStack);
 
 	// Create the API
-	const api = new Api(stack, "Api", {
+	const api: Api = new Api(stack, "Api", {
 		defaults: {
 			function: {
 				bind: [table],
@@ -34,4 +37,4 @@ export function ApiStack({ stack, app }: any) {
 	return {
 		api,
 	};
-}
+};

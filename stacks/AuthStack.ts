@@ -1,14 +1,18 @@
 import * as iam from "aws-cdk-lib/aws-iam";
-import { Cognito, use } from "sst/constructs";
+import { Cognito, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
 import { ApiStack } from "./ApiStack";
 
-export function AuthStack({ stack, app }: any) {
+interface IAuthStack {
+	auth: Cognito;
+}
+
+export const AuthStack = ({ stack, app }: StackContext): IAuthStack => {
 	const { bucket } = use(StorageStack);
 	const { api } = use(ApiStack);
 
 	// Create a Cognito User Pool and Identity Pool
-	const auth = new Cognito(stack, "Auth", {
+	const auth: Cognito = new Cognito(stack, "Auth", {
 		login: ["email"],
 	});
 
@@ -27,7 +31,7 @@ export function AuthStack({ stack, app }: any) {
 	stack.addOutputs({
 		Region: app.region,
 		UserPoolId: auth.userPoolId,
-		IdentityPoolId: auth.cognitoIdentityPoolId,
+		IdentityPoolId: auth?.cognitoIdentityPoolId || "",
 		UserPoolClientId: auth.userPoolClientId,
 	});
 
@@ -35,4 +39,4 @@ export function AuthStack({ stack, app }: any) {
 	return {
 		auth,
 	};
-}
+};
