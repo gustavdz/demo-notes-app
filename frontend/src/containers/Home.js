@@ -19,8 +19,8 @@ export default function Home() {
 			}
 
 			try {
-				const notes = await loadNotes();
-				setNotes(notes);
+				const { body } = await loadNotes();
+				setNotes(JSON.parse(body));
 			} catch (e) {
 				onError(e);
 			}
@@ -44,7 +44,7 @@ export default function Home() {
 						<span className='ms-2 fw-bold'>Create a new note</span>
 					</ListGroup.Item>
 				</LinkContainer>
-				{notes.map(({ noteId, content, createdAt }) => (
+				{notes?.map(({ noteId, content, createdAt }) => (
 					<LinkContainer key={noteId} to={`/notes/${noteId}`}>
 						<ListGroup.Item action className='text-nowrap text-truncate'>
 							<span className='fw-bold'>{content.trim().split("\n")[0]}</span>

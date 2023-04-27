@@ -24,7 +24,8 @@ export default function Notes() {
 
 		async function onLoad() {
 			try {
-				const note = await loadNote();
+				const { body } = await loadNote();
+				const note = JSON.parse(body);
 				const { content, attachment } = note;
 
 				if (attachment) {

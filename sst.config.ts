@@ -8,7 +8,7 @@ export default {
 	config(_input) {
 		return {
 			name: "notes",
-			region: "us-east-1",
+			region: "us-east-2",
 		};
 	},
 	stacks(app) {

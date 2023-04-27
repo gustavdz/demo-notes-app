@@ -17,5 +17,5 @@ export const main = handler(async (event: APIGatewayProxyEventV2WithIAMAuthorize
 
 	await dynamoDb.delete(params);
 
-	return { status: true };
+	return { statusCode: 200, body: JSON.stringify({ status: true }) };
 });
