@@ -56,33 +56,20 @@ export const ApiStack = ({ stack }: StackContext) => {
 			allowOrigins: ["*"],
 		},
 	});
-	const permissions: iam.PolicyStatement = new iam.PolicyStatement({
-		actions: [
-			"cognito-idp:*",
-			// "cognito-idp:AdminCreateUser",
-			// "cognito-idp:AdminDeleteUser",
-			// "cognito-idp:AdminSetUserPassword",
-			// "cognito-idp:AdminEnableUser",
-			// "cognito-idp:AdminDisableUser",
-		],
-		effect: iam.Effect.ALLOW,
-		resources: ["*"],
-	});
+
 	api.attachPermissions([
-		// new cdk.aws() -
-		// 	iam.PolicyStatement({
-		// 		actions: [
-		// 			"cognito-idp:*",
-		// 			// "cognito-idp:AdminCreateUser",
-		// 			// "cognito-idp:AdminDeleteUser",
-		// 			// "cognito-idp:AdminSetUserPassword",
-		// 			// "cognito-idp:AdminEnableUser",
-		// 			// "cognito-idp:AdminDisableUser",
-		// 		],
-		// 		effect: iam.Effect.ALLOW,
-		// 		resources: ["*"],
-		// 	}),
-		permissions,
+		new iam.PolicyStatement({
+			actions: [
+				"cognito-idp:AdminGetUser",
+				"cognito-idp:AdminCreateUser",
+				"cognito-idp:AdminDeleteUser",
+				"cognito-idp:AdminSetUserPassword",
+				"cognito-idp:AdminEnableUser",
+				"cognito-idp:AdminDisableUser",
+			],
+			effect: iam.Effect.ALLOW,
+			resources: ["*"],
+		}),
 	]);
 
 	// Show the API endpoint in the output

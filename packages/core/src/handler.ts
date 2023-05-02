@@ -6,7 +6,6 @@ import {
 	Callback,
 } from "aws-lambda";
 import * as debug from "./debug";
-import { ILambda } from "./interfaces";
 
 export default function handler(lambda: Handler) {
 	return async function (

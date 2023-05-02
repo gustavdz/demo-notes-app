@@ -1,11 +1,11 @@
 import { APIGatewayProxyEventV2WithJWTAuthorizer } from "aws-lambda";
-import { CognitoIdentityServiceProvider } from "aws-sdk";
+import { CognitoIdentityProvider as CognitoIdentityServiceProvider } from "@aws-sdk/client-cognito-identity-provider";
 import { IUserDataFromCognito } from "../interfaces";
 
 export const getUserDataFromCognito = async (
 	event: APIGatewayProxyEventV2WithJWTAuthorizer,
 ): Promise<IUserDataFromCognito> => {
-	const cognito = new CognitoIdentityServiceProvider();
+	const cognito = new CognitoIdentityServiceProvider({});
 
 	const authProviderId: string = event.requestContext.authorizer.jwt.claims.sub.toString();
 	if (!authProviderId) {
@@ -23,12 +23,10 @@ export const getUserDataFromCognito = async (
 	const iss = event.requestContext.authorizer.jwt.claims.iss.toString().split("/");
 	const uerPoolId = iss[iss.length - 1];
 
-	const { UserAttributes } = await cognito
-		.adminGetUser({
-			UserPoolId: uerPoolId,
-			Username: authProviderId,
-		})
-		.promise();
+	const { UserAttributes } = await cognito.adminGetUser({
+		UserPoolId: uerPoolId,
+		Username: authProviderId,
+	});
 
 	if (!UserAttributes) {
 		throw new Error("User not found");
