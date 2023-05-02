@@ -1,8 +1,20 @@
-import { Context, APIGatewayProxyEventV2WithIAMAuthorizer } from "aws-lambda";
+import {
+	Context,
+	APIGatewayProxyResultV2,
+	APIGatewayProxyEventV2WithJWTAuthorizer,
+	Handler,
+	Callback,
+} from "aws-lambda";
 import * as debug from "./debug";
+import { ILambda } from "./interfaces";
 
-export default function handler(lambda: any) {
-	return async function (event: APIGatewayProxyEventV2WithIAMAuthorizer, context: Context): Promise<any> {
+export default function handler(lambda: Handler) {
+	return async function (
+		// event: APIGatewayProxyEventV2WithIAMAuthorizer,
+		event: APIGatewayProxyEventV2WithJWTAuthorizer,
+		context: Context,
+		callback: Callback,
+	): Promise<APIGatewayProxyResultV2> {
 		let body, statusCode;
 
 		// Start debugger
@@ -10,7 +22,7 @@ export default function handler(lambda: any) {
 
 		try {
 			// Run the Lambda
-			body = await lambda(event, context);
+			body = await lambda(event, context, callback);
 			statusCode = 200;
 		} catch (e: any) {
 			// Print debug messages
@@ -26,7 +38,6 @@ export default function handler(lambda: any) {
 			body: JSON.stringify(body),
 			headers: {
 				"Access-Control-Allow-Origin": "*",
-				"Access-Control-Allow-Credentials": true,
 			},
 		};
 	};

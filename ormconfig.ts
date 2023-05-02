@@ -11,7 +11,7 @@ const config: DataSourceOptions = {
 	database: process.env.DB_NAME,
 	synchronize: false,
 	logging: false,
-	entities: ["./packages/core/src/db/entity/*{.ts,.js}"],
+	entities: ["./packages/core/src/db/entity/!index.{ts,js}"],
 	migrations: ["./packages/core/src/db/migrations/*{.ts,.js}"],
 	migrationsRun: false,
 };

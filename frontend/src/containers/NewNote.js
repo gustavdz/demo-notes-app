@@ -5,12 +5,13 @@ import LoaderButton from "../components/LoaderButton";
 import { onError } from "../lib/errorLib";
 import config from "../config";
 import "./NewNote.css";
-import { API } from "aws-amplify";
+import { API, Auth } from "aws-amplify";
 import { s3Upload } from "../lib/awsLib";
 
 export default function NewNote() {
 	const file = useRef(null);
 	const nav = useNavigate();
+	const [name, setName] = useState("");
 	const [content, setContent] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -35,7 +36,7 @@ export default function NewNote() {
 		try {
 			const attachment = file.current ? await s3Upload(file.current) : null;
 
-			await createNote({ content, attachment });
+			await createNote({ content, attachment, name });
 			nav("/");
 		} catch (e) {
 			onError(e);
@@ -43,8 +44,11 @@ export default function NewNote() {
 		}
 	}
 
-	function createNote(note) {
+	async function createNote(note) {
 		return API.post("notes", "/notes", {
+			headers: {
+				Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`,
+			},
 			body: note,
 		});
 	}
@@ -52,7 +56,10 @@ export default function NewNote() {
 	return (
 		<div className='NewNote'>
 			<Form onSubmit={handleSubmit}>
-				<Form.Group controlId='content'>
+				<Form.Group controlId='name'>
+					<Form.Control value={name} as='input' onChange={(e) => setName(e.target.value)} />
+				</Form.Group>
+				<Form.Group className='mt-2' controlId='content'>
 					<Form.Control value={content} as='textarea' onChange={(e) => setContent(e.target.value)} />
 				</Form.Group>
 				<Form.Group className='mt-2' controlId='file'>

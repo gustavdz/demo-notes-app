@@ -1,10 +1,17 @@
 import "reflect-metadata";
-import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, BaseEntity } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, BaseEntity, DeleteDateColumn } from "typeorm";
 
 @Entity({ name: "note" })
-export class Note extends BaseEntity {
+export default class Note extends BaseEntity {
 	@PrimaryGeneratedColumn("uuid")
 	id: string;
+
+	@Column({
+		type: "varchar",
+		length: 300,
+		comment: "Unique cognito user's id",
+	})
+	userId: string;
 
 	@Column({
 		type: "varchar",
@@ -12,6 +19,13 @@ export class Note extends BaseEntity {
 		comment: "Unique name of the note",
 	})
 	name: string;
+
+	@Column({
+		type: "varchar",
+		length: 300,
+		comment: "Unique name of the note",
+	})
+	content: string;
 
 	@Column({
 		type: "varchar",
@@ -24,11 +38,18 @@ export class Note extends BaseEntity {
 		type: "timestamp",
 		default: () => "CURRENT_TIMESTAMP",
 	})
-	created_at: Date;
+	createdAt: Date;
 
 	@UpdateDateColumn({
 		type: "timestamp",
 		nullable: true,
 	})
-	updated_at: Date | null;
+	updatedAt: Date | null;
+
+	@DeleteDateColumn({
+		type: "timestamp",
+		nullable: true,
+		name: "deletedAt",
+	})
+	delete: Date | null;
 }

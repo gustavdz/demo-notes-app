@@ -1,6 +1,6 @@
 import util from "util";
 import AWS from "aws-sdk";
-import { APIGatewayProxyEventV2WithIAMAuthorizer } from "aws-lambda";
+import { APIGatewayProxyEventV2WithJWTAuthorizer } from "aws-lambda";
 
 interface ILog {
 	date: Date;
@@ -24,7 +24,7 @@ export default function debug(title: string, arg: IArguments) {
 	});
 }
 
-export function init(event: APIGatewayProxyEventV2WithIAMAuthorizer) {
+export function init(event: APIGatewayProxyEventV2WithJWTAuthorizer) {
 	logs = [];
 
 	// Log API event

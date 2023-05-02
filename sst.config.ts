@@ -4,14 +4,17 @@ import { StorageStack } from "./stacks/StorageStack";
 import { AuthStack } from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 
-export default {
-	config(_input) {
+const config = {
+	config(_input: any) {
 		return {
 			name: "notes",
 			region: "us-east-2",
 		};
 	},
-	stacks(app) {
-		app.stack(StorageStack).stack(ApiStack).stack(AuthStack).stack(FrontendStack);
+	stacks(app: any) {
+		app.stack(StorageStack).stack(AuthStack).stack(ApiStack).stack(FrontendStack);
 	},
-} satisfies SSTConfig;
+};
+
+export default config satisfies SSTConfig;
+// export default config;

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { API, Storage } from "aws-amplify";
+import { API, Storage, Auth } from "aws-amplify";
 import { onError } from "../lib/errorLib";
 import Form from "react-bootstrap/Form";
 import LoaderButton from "../components/LoaderButton";
@@ -16,22 +16,28 @@ export default function Notes() {
 	const nav = useNavigate();
 	const [note, setNote] = useState(null);
 	const [content, setContent] = useState("");
+	const [name, setName] = useState("");
 
 	useEffect(() => {
-		function loadNote() {
-			return API.get("notes", `/notes/${id}`);
+		async function loadNote() {
+			return API.get("notes", `/notes/${id}`, {
+				headers: {
+					Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`,
+				},
+			});
 		}
 
 		async function onLoad() {
 			try {
 				const { body } = await loadNote();
 				const note = JSON.parse(body);
-				const { content, attachment } = note;
+				const { content, attachment, name } = note;
 
 				if (attachment) {
 					note.attachmentURL = await Storage.vault.get(attachment);
 				}
 
+				setName(name);
 				setContent(content);
 				setNote(note);
 			} catch (e) {
@@ -54,8 +60,11 @@ export default function Notes() {
 		file.current = event.target.files[0];
 	}
 
-	function saveNote(note) {
+	async function saveNote(note) {
 		return API.put("notes", `/notes/${id}`, {
+			headers: {
+				Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`,
+			},
 			body: note,
 		});
 	}
@@ -80,6 +89,7 @@ export default function Notes() {
 			await saveNote({
 				content,
 				attachment: attachment || note.attachment,
+				name,
 			});
 			nav("/");
 		} catch (e) {
@@ -88,8 +98,12 @@ export default function Notes() {
 		}
 	}
 
-	function deleteNote() {
-		return API.del("notes", `/notes/${id}`);
+	async function deleteNote() {
+		return API.del("notes", `/notes/${id}`, {
+			headers: {
+				Authorization: `Bearer ${(await Auth.currentSession()).getIdToken().getJwtToken()}`,
+			},
+		});
 	}
 
 	async function handleDelete(event) {
@@ -116,7 +130,10 @@ export default function Notes() {
 		<div className='Notes'>
 			{note && (
 				<Form onSubmit={handleSubmit}>
-					<Form.Group controlId='content'>
+					<Form.Group controlId='name'>
+						<Form.Control value={name} as='input' onChange={(e) => setName(e.target.value)} />
+					</Form.Group>
+					<Form.Group className='mt-2' controlId='content'>
 						<Form.Control as='textarea' value={content} onChange={(e) => setContent(e.target.value)} />
 					</Form.Group>
 					<Form.Group className='mt-2' controlId='file'>

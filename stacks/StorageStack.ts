@@ -1,7 +1,6 @@
-import { Bucket, StackContext, Table } from "sst/constructs";
+import { Bucket, StackContext } from "sst/constructs";
 
 interface IStorageStack {
-	table: Table;
 	bucket: Bucket;
 }
 export const StorageStack = ({ stack }: StackContext): IStorageStack => {
@@ -16,17 +15,8 @@ export const StorageStack = ({ stack }: StackContext): IStorageStack => {
 			},
 		],
 	});
-	// Create the DynamoDB table
-	const table: Table = new Table(stack, "Notes", {
-		fields: {
-			userId: "string",
-			noteId: "string",
-		},
-		primaryIndex: { partitionKey: "userId", sortKey: "noteId" },
-	});
 
 	return {
-		table,
 		bucket,
 	};
 };

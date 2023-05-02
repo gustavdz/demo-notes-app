@@ -1,17 +1,24 @@
+import * as iam from "aws-cdk-lib/aws-iam";
 import { Api, StackContext, use } from "sst/constructs";
 import { StorageStack } from "./StorageStack";
+import { AuthStack } from "./AuthStack";
 
-interface IApiStack {
-	api: Api;
-}
-export const ApiStack = ({ stack }: StackContext): IApiStack => {
-	const { table } = use(StorageStack);
-
+export const ApiStack = ({ stack }: StackContext) => {
+	const { bucket } = use(StorageStack);
+	const { auth } = use(AuthStack);
 	// Create the API
-	const api: Api = new Api(stack, "Api", {
+	const api = new Api(stack, "Api", {
+		authorizers: {
+			jwt: {
+				type: "user_pool",
+				userPool: {
+					id: auth.userPoolId,
+					clientIds: [auth.userPoolClientId],
+				},
+			},
+		},
 		defaults: {
 			function: {
-				bind: [table],
 				environment: {
 					STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
 					DB_TYPE: process.env.DB_TYPE || "mysql",
@@ -22,34 +29,77 @@ export const ApiStack = ({ stack }: StackContext): IApiStack => {
 					DB_PASSWORD: process.env.DB_PASSWORD || "",
 				},
 			},
-			authorizer: "iam",
+			authorizer: "jwt",
 		},
 		routes: {
 			"POST /notes": {
-				function: { handler: "packages/functions/src/create.main", functionName: "notesCreate" },
+				function: { handler: "packages/functions/src/modules/note/create.main", functionName: "notesCreate" },
 			},
 			"GET /notes/{id}": {
-				function: { handler: "packages/functions/src/get.main", functionName: "notesGetById" },
+				function: { handler: "packages/functions/src/modules/note/get.main", functionName: "notesGetById" },
 			},
 			"GET /notes": {
-				function: { handler: "packages/functions/src/list.main", functionName: "notesGetList" },
+				function: { handler: "packages/functions/src/modules/note/list.main", functionName: "notesGetList" },
 			},
 			"PUT /notes/{id}": {
-				function: { handler: "packages/functions/src/update.main", functionName: "notesUpdateById" },
+				function: { handler: "packages/functions/src/modules/note/update.main", functionName: "notesUpdateById" },
 			},
 			"DELETE /notes/{id}": {
-				function: { handler: "packages/functions/src/delete.main", functionName: "notesDeleteById" },
+				function: { handler: "packages/functions/src/modules/note/delete.main", functionName: "notesDeleteById" },
 			},
 			"POST /billing": {
 				function: { handler: "packages/functions/src/billing.main", functionName: "billingCreate" },
 			},
 		},
+		cors: {
+			allowMethods: ["ANY"],
+			allowOrigins: ["*"],
+		},
 	});
+	const permissions: iam.PolicyStatement = new iam.PolicyStatement({
+		actions: [
+			"cognito-idp:*",
+			// "cognito-idp:AdminCreateUser",
+			// "cognito-idp:AdminDeleteUser",
+			// "cognito-idp:AdminSetUserPassword",
+			// "cognito-idp:AdminEnableUser",
+			// "cognito-idp:AdminDisableUser",
+		],
+		effect: iam.Effect.ALLOW,
+		resources: ["*"],
+	});
+	api.attachPermissions([
+		// new cdk.aws() -
+		// 	iam.PolicyStatement({
+		// 		actions: [
+		// 			"cognito-idp:*",
+		// 			// "cognito-idp:AdminCreateUser",
+		// 			// "cognito-idp:AdminDeleteUser",
+		// 			// "cognito-idp:AdminSetUserPassword",
+		// 			// "cognito-idp:AdminEnableUser",
+		// 			// "cognito-idp:AdminDisableUser",
+		// 		],
+		// 		effect: iam.Effect.ALLOW,
+		// 		resources: ["*"],
+		// 	}),
+		permissions,
+	]);
 
 	// Show the API endpoint in the output
 	stack.addOutputs({
 		ApiEndpoint: api.url,
 	});
+
+	auth.attachPermissionsForAuthUsers(stack, [
+		// Allow access to the API
+		api,
+		// Policy granting access to a specific folder in the bucket
+		new iam.PolicyStatement({
+			actions: ["s3:*"],
+			effect: iam.Effect.ALLOW,
+			resources: [bucket.bucketArn + "/private/${cognito-identity.amazonaws.com:sub}/*"],
+		}),
+	]);
 
 	// Return the API resource
 	return {
